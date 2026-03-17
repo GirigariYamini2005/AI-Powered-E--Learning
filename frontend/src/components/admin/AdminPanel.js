@@ -144,9 +144,24 @@ const AdminPanel = () => {
       alert('Please fill in title, description and category.');
       return;
     }
+    
+    // Clean up payload by filtering out empty topics and subtopics
+    const payload = { ...newCourse };
+    payload.topics = payload.topics.reduce((acc, topic) => {
+      if (topic.title.trim() || topic.description.trim()) {
+        const subtopics = topic.subtopics.filter(sub => sub.title.trim() || sub.content.trim());
+        acc.push({ ...topic, subtopics });
+      } else if (topic.subtopics.some(sub => sub.title.trim() || sub.content.trim())) {
+        // Topic title/desc is empty, but it has valid subtopics.
+        const subtopics = topic.subtopics.filter(sub => sub.title.trim() || sub.content.trim());
+        acc.push({ ...topic, subtopics });
+      }
+      return acc;
+    }, []);
+
     setSaving(true);
     try {
-      await API.post('/courses', newCourse);
+      await API.post('/courses', payload);
       alert('Course created successfully!');
       setNewCourse({
         title: '', description: '', category: '', thumbnail: '', difficulty: 'Beginner',
@@ -155,7 +170,12 @@ const AdminPanel = () => {
       setShowAddCourse(false);
       loadData();
     } catch (error) {
-      alert(error.response?.data?.message || 'Failed to create course.');
+      const errorData = error.response?.data;
+      if (errorData?.errors && errorData.errors.length > 0) {
+        alert(`Validation Error:\n${errorData.errors.join('\n')}`);
+      } else {
+        alert(errorData?.message || 'Failed to create course.');
+      }
     } finally {
       setSaving(false);
     }

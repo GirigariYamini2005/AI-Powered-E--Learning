@@ -33,6 +33,11 @@ router.post('/', adminAuth, async (req, res) => {
     await course.save();
     res.status(201).json(course);
   } catch (error) {
+    if (error.name === 'ValidationError') {
+      const messages = Object.values(error.errors).map(err => err.message);
+      return res.status(400).json({ message: 'Validation Error', errors: messages });
+    }
+    console.error('Course creation error:', error);
     res.status(500).json({ message: 'Server error.' });
   }
 });
