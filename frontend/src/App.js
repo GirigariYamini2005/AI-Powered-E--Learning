@@ -12,6 +12,7 @@ import QuizResult from './components/quiz/QuizResult';
 import Dashboard from './components/dashboard/Dashboard';
 import EnrolledCourses from './components/courses/EnrolledCourses';
 import AdminPanel from './components/admin/AdminPanel';
+import VideoGenerator from './components/ai/VideoGenerator';
 import './App.css';
 
 const ProtectedRoute = ({ children }) => {
@@ -42,6 +43,7 @@ function AppContent() {
         <Route path="/results/:resultId" element={<ProtectedRoute><QuizResult /></ProtectedRoute>} />
         <Route path="/enrolled" element={<ProtectedRoute><EnrolledCourses /></ProtectedRoute>} />
         <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+        <Route path="/generate-video" element={<ProtectedRoute><VideoGenerator /></ProtectedRoute>} />
         <Route path="/admin" element={<ProtectedRoute><AdminPanel /></ProtectedRoute>} />
         <Route path="/" element={<Navigate to="/courses" />} />
         <Route path="*" element={<Navigate to="/courses" />} />

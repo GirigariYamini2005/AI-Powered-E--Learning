@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { FiBookOpen, FiGrid, FiLogOut, FiCheckSquare, FiSettings } from 'react-icons/fi';
+import { FiBookOpen, FiGrid, FiLogOut, FiCheckSquare, FiSettings, FiVideo } from 'react-icons/fi';
 
 const Navbar = () => {
   const { user, logout } = useAuth();
@@ -26,6 +26,9 @@ const Navbar = () => {
         </Link>
         <Link to="/dashboard" className={`nav-link ${isActive('/dashboard') ? 'active' : ''}`}>
           <FiGrid /> Dashboard
+        </Link>
+        <Link to="/generate-video" className={`nav-link ${isActive('/generate-video') ? 'active' : ''}`}>
+          <FiVideo /> AI Video
         </Link>
         {user?.role === 'admin' && (
           <Link to="/admin" className={`nav-link admin-link ${isActive('/admin') ? 'active' : ''}`}>

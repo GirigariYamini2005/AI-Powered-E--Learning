@@ -11,7 +11,16 @@
   "author": "",
   "license": "ISC",
   "type": "commonjs",
+  "scripts": {
+    "start": "node server.js",
+    "seed": "node seed.js",
+    "finetune": "node scripts/finetune.js",
+    "finetune:status": "node scripts/finetune.js --status"
+  },
   "dependencies": {
+    "@langchain/core": "^0.3.0",
+    "@langchain/langgraph": "^0.2.0",
+    "@langchain/openai": "^0.3.0",
     "bcryptjs": "^3.0.3",
     "cors": "^2.8.6",
     "dotenv": "^17.3.1",

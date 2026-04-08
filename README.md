@@ -1,6 +1,7 @@
 # 🎓 AI-Powered E-Learning Platform
 
-An intelligent, full-stack e-learning platform with adaptive quizzes, AI-driven explanations, personalized study recommendations, and a comprehensive admin dashboard. Built with React, Node.js, Express, MongoDB, and OpenAI GPT.
+
+An intelligent, full-stack e-learning platform with adaptive quizzes, AI-driven explanations, personalized study recommendations, and a comprehensive admin dashboard. Built with React, Node.js, Express, MongoDB, OpenAI GPT, and **LangGraph** for modular, visual AI pipelines.
 
 ![Node.js](https://img.shields.io/badge/Node.js-18+-339933?logo=node.js&logoColor=white)
 ![React](https://img.shields.io/badge/React-18-61DAFB?logo=react&logoColor=white)
@@ -20,9 +21,11 @@ An intelligent, full-stack e-learning platform with adaptive quizzes, AI-driven 
 - [Features](#features)
 - [Database Schema](#database-schema)
 - [API Endpoints](#api-endpoints)
+- [AI Pipeline Architecture](#ai-pipeline-architecture)
 - [Prerequisites](#prerequisites)
 - [Installation & Setup](#installation--setup)
 - [Running the Application](#running-the-application)
+- [Fine-tuning & Tracing](#fine-tuning--tracing)
 - [Testing Guide](#testing-guide)
 - [Seed Data](#seed-data)
 - [Environment Variables](#environment-variables)
@@ -33,17 +36,51 @@ An intelligent, full-stack e-learning platform with adaptive quizzes, AI-driven 
 
 ## Overview
 
-This platform enables students to browse courses, study structured learning content, take adaptive quizzes, and receive AI-powered feedback on their performance. Admins can manage all platform content through a dedicated dashboard. The system leverages OpenAI's GPT model to provide intelligent explanations for incorrect quiz answers and generate personalized study recommendations.
+
+This platform enables students to browse courses, study structured learning content, take adaptive quizzes, and receive AI-powered feedback on their performance. Admins can manage all platform content through a dedicated dashboard. The system leverages OpenAI's GPT model and **LangGraph** to provide intelligent, modular, and visually traceable AI explanations, quiz generation, and personalized study recommendations.
+
 
 ### Key Highlights
 
+- **Modular AI Pipelines**: All AI features (quiz generation, feedback, explanations, video slides) are built as multi-node LangGraph pipelines for transparency, extensibility, and debugging.
+- **Visual Tracing**: Every AI pipeline run is visualized on [smith.langchain.com](https://smith.langchain.com) (LangSmith) — see every node, input/output, and error.
+- **Fine-tuned Quiz Generation**: Easily fine-tune your own OpenAI model for quiz generation with a single script and dataset.
 - **5 Pre-built Courses** with structured topics and subtopics (Python, JavaScript, Data Science, MongoDB, Machine Learning)
 - **14 Quizzes** with 70+ multiple-choice questions and auto-grading
-- **AI-Powered Feedback** using OpenAI GPT-3.5-turbo for personalized learning
+- **AI-Powered Feedback** using OpenAI GPT-3.5-turbo (or your fine-tuned model)
 - **Real-time Analytics** with performance charts and weak topic identification
 - **Admin Panel** with full CRUD operations for courses, quizzes, and user management
 - **JWT Authentication** with role-based access control (Student / Admin)
 - **Responsive UI** with a light, study-focused design theme
+## AI Pipeline Architecture
+
+All AI features use **LangGraph** — a node-based, visual pipeline framework for LLMs. Each feature is a directed graph of nodes, where each node does a single job (e.g., categorize errors, generate explanations, synthesize recommendations).
+
+**Why?**
+- **Debuggability:** See exactly which step failed and why.
+- **Extensibility:** Add, remove, or reorder nodes without rewriting everything.
+- **Transparency:** Every input/output is visible and auditable.
+
+**Visual Tracing:**
+- Every pipeline run is sent to [smith.langchain.com](https://smith.langchain.com) (LangSmith) for visual inspection.
+- See the full graph, node timings, token usage, and errors.
+
+**Example: AI Feedback Pipeline**
+
+```
+analyseTrend → identifyPatterns → buildStudyPlan
+```
+
+**Example: Quiz Generation Pipeline**
+
+```
+enrichTopicContext → generateQuizDraft → validateQuiz
+```
+
+**How to view:**
+1. Sign up at [smith.langchain.com](https://smith.langchain.com) and get an API key
+2. Add it to your `.env` (see below)
+3. Use any AI feature — see the run appear as a node graph in your LangSmith dashboard
 
 ---
 
@@ -355,11 +392,43 @@ AI-Powered-E-Learning/
 |---|---|---|---|
 | `GET` | `/api/dashboard` | JWT | Get user analytics & performance stats |
 
-### AI (OpenAI GPT-3.5)
+
+### AI (LangGraph + OpenAI)
 | Method | Endpoint | Auth | Description |
 |---|---|---|---|
-| `POST` | `/api/ai/explain` | JWT | Get AI explanation for incorrect answers |
-| `POST` | `/api/ai/feedback` | JWT | Get personalized study recommendations |
+| `POST` | `/api/ai/explain` | JWT | Get AI explanation for incorrect answers (LangGraph pipeline) |
+| `POST` | `/api/ai/feedback` | JWT | Get personalized study recommendations (LangGraph pipeline) |
+| `POST` | `/api/ai/generate-video` | JWT | Generate video slides for a topic (LangGraph pipeline + DALL-E) |
+| `POST` | `/api/ai/generate-quiz` | JWT | Generate a quiz for a topic (LangGraph pipeline, uses fine-tuned model if available) |
+## Fine-tuning & Tracing
+
+### Fine-tune your own quiz generator (optional)
+
+1. Edit your OpenAI API key in `backend/.env`.
+2. Run:
+  ```bash
+  cd backend
+  npm run finetune
+  ```
+  This uploads a 50-question dataset and starts a fine-tuning job. Wait for it to finish (15–60 min).
+3. Copy the printed model ID to your `.env` as:
+  ```env
+  FINETUNED_MODEL_ID=ft:gpt-3.5-turbo-...
+  ```
+4. Restart the backend. The `/api/ai/generate-quiz` endpoint will now use your fine-tuned model.
+
+### Enable LangSmith visual tracing
+
+1. Sign up at [smith.langchain.com](https://smith.langchain.com) and create an API key.
+2. Add these to your `backend/.env`:
+  ```env
+  LANGCHAIN_TRACING_V2=true
+  LANGCHAIN_API_KEY=lsv2-pt-xxxxxxxxxxxxxxxx
+  LANGCHAIN_PROJECT=ai-elearning
+  ```
+3. Restart the backend. Every AI pipeline run will now appear as a visual node graph in your LangSmith dashboard.
+
+---
 
 ### Admin
 | Method | Endpoint | Auth | Description |

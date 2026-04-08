@@ -39,5 +39,8 @@ export const getDashboard = () => API.get('/dashboard');
 // AI
 export const getAIExplanation = (resultId) => API.post('/ai/explain', { resultId });
 export const getAIFeedback = () => API.post('/ai/feedback');
+export const generateVideoSlides = (topic, courseId) => API.post('/ai/generate-video', { topic, courseId });
+export const generateQuiz = (topic, difficulty = 'intermediate', numQuestions = 5, courseId) =>
+  API.post('/ai/generate-quiz', { topic, difficulty, numQuestions, courseId });
 
 export default API;
